@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CAPTCHA Example</title>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LcurhoqAAAAAKtKJzegAbfLF6q4qc2BuCyzqhUO"></script>
+    <script>
+      function onButtonClick(e) {
+        e.preventDefault();
+        grecaptcha.ready(function () {
+          grecaptcha
+            .execute("6LcurhoqAAAAAKtKJzegAbfLF6q4qc2BuCyzqhUO", {
+              action: "submit",
+            })
+            .then(function (token) {
+              // Send token to backend for verification
+              fetch("/.netlify/functions/verify-captcha", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ token: token }),
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    // Redirect to protected page
+                    window.location.href = "/protected.html";
+                  } else {
+                    alert("CAPTCHA verification failed. Please try again.");
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error:", error);
+                  alert("An error occurred. Please try again.");
+                });
+            });
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Welcome to CAPTCHA Example</h1>
+    <button onclick="onButtonClick(event)">Verify CAPTCHA</button>
+  </body>
+</html>
